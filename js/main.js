@@ -3,6 +3,7 @@ canvas = undefined;
 context = undefined;
 canvasWebGl = undefined;
 contextWebGl = undefined;
+rendererWebGl = undefined;
 
 settings = {
 
@@ -25,8 +26,8 @@ settings = {
             a: 1.0
         },
 
-        glow: {
-            blur: 1, // Blurring effect to the shadow, the larger the value, the greater the blur. Zero means disabled
+        shadow: {
+            blur: 0, // Blurring effect to the shadow, the larger the value, the greater the blur. Zero means disabled
             offsetX: 0, // Horizontal distance of the shadow, in relation to the text.
             offsetY: 0, // Vertical distance of the shadow, in relation to the text.
             color: {
@@ -65,6 +66,10 @@ function init() {
             canvasWebGl = document.getElementById("canvasWebGl");
             contextWebGl = canvasWebGl.getContext("experimental-webgl") || canvasWebGl.getContext("webgl");
             if (!contextWebGl) throw "contextWebGl not initialized";
+
+            rendererWebGl = PIXI.autoDetectRenderer(settings.width, settings.height, canvasWebGl, true, true);
+            document.body.appendChild(rendererWebGl.view);
+
         } catch (err) {
             throw "Your web browser does not support WebGL!";
         }
@@ -74,18 +79,33 @@ function init() {
     initCanvas();
     initContext();
     initWebGl();
-
 }
 
 function colorToRgba(color) {
-    return 'rgba(' + (255.0 * color.r) + ',' + (255.0 * color.g) + ',' + (255.0 * color.b) + ',' + (color.a != undefined ? color.a : 1.0) + ')';
+    return 'rgba(' + Math.floor(255 * color.r) + ',' + Math.floor(255 * color.g) + ',' + Math.floor(255 * color.b) + ',' + (color.a != undefined ? color.a : 1.0) + ')';
 }
+
+function colorToHex(color) {
+    hexColor = '#';
+
+    var rHex = (color.r * 255).toString(16);
+    if (rHex.length == 1) rHex = '0' + rHex;
+
+    var gHex = (color.g * 255).toString(16);
+    if (gHex.length == 1) gHex = '0' + gHex;
+
+    var bHex = (color.b * 255).toString(16);
+    if (bHex.length == 1) bHex = '0' + bHex;
+
+    return '#' + rHex + gHex + bHex;
+};
+
 function clearCanvas() {
     context.fillStyle = colorToRgba(settings.text.backgroundColor);
     context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-function clearGl() {
+function clearWebGl() {
 
     contextWebGl.clearColor(
         settings.text.backgroundColor.r,
@@ -104,10 +124,10 @@ function benchmark(func) {
     var end = +new Date();  // log end timestamp
     console.log(arguments[0].name + ": " + (end - start) + "ms");
 
-    document.getElementById("time").innerText = (end - start) + "ms";
+    document.getElementById("time").innerHTML = (end - start) + "ms";
 }
 
-function drawLetter(context, letter, x, y, degrees) {
+function drawLetterOnCanvas(context, letter, x, y, degrees) {
 
     if (degrees == 0) {
         context.fillText(letter, x, y);
@@ -122,15 +142,15 @@ function drawLetter(context, letter, x, y, degrees) {
 }
 
 
-var drawFontsOnCanvas = function drawFontsOnCanvas() {
+var drawLettersOnCanvas = function drawFontsOnCanvas() {
 
     context.save();
 
-    if (settings.text.glow.blur) {
-        context.shadowColor = colorToRgba(settings.text.glow.color);
-        context.shadowOffsetX = settings.text.glow.offsetX;
-        context.shadowOffsetY = settings.text.glow.offsetY;
-        context.shadowBlur = settings.text.glow.blur;
+    if (settings.text.shadow.blur) {
+        context.shadowColor = colorToRgba(settings.text.shadow.color);
+        context.shadowOffsetX = settings.text.shadow.offsetX;
+        context.shadowOffsetY = settings.text.shadow.offsetY;
+        context.shadowBlur = settings.text.shadow.blur;
     }
 
     context.font = settings.text.style + ' ' + settings.text.size + 'px ' + settings.text.font;
@@ -142,9 +162,9 @@ var drawFontsOnCanvas = function drawFontsOnCanvas() {
             var letter = settings.text.value.charAt(c);
 
             var y = (r + 1) * (settings.text.size + settings.text.padding);
-            var x = (c + 1) * settings.text.size + settings.text.padding;
+            var x = (c + 1) * (settings.text.size + settings.text.padding);
 
-            drawLetter(context, letter, x, y, r * 360.0 / settings.text.rotations);
+            drawLetterOnCanvas(context, letter, x, y, r * 360.0 / settings.text.rotations);
         }
     }
 
@@ -152,9 +172,47 @@ var drawFontsOnCanvas = function drawFontsOnCanvas() {
 
 };
 
+function drawLetterOnWebGl(stage, letter, x, y, degrees) {
+
+    var text = new PIXI.Text(letter, {
+        font: settings.text.size + "px " + settings.text.font,
+        fill: colorToHex(settings.text.color)
+    });
+
+    text.position.x = x;
+    text.position.y = y;
+    text.rotation = degrees * Math.PI / 180
+
+    stage.addChild(text);
+}
+
+var drawLettersOnWebGl = function drawLettersOnWebGl() {
+    // create an new instance of a pixi stage
+    var stage = new PIXI.Stage(0X000000, true);
+    stage.interactive = false;
+
+    for (var r = 0; r < settings.text.rotations; r++) {
+        var x = settings.text.size + settings.text.padding;
+        for (var c = 0; c < settings.text.value.length; c++) {
+            var letter = settings.text.value.charAt(c);
+
+            var y = (r + 1) * (settings.text.size + settings.text.padding);
+            var x = (c + 1) * (settings.text.size + settings.text.padding);
+
+            drawLetterOnWebGl(stage, letter, x, y, r * 360.0 / settings.text.rotations);
+        }
+    }
+
+    rendererWebGl.render(stage);
+};
+
 function run() {
-    clearCanvas();
-    benchmark(drawFontsOnCanvas);
+    //clearCanvas();
+    //benchmark(drawLettersOnCanvas);
+
+    //clearCanvas();
+    clearWebGl();
+    benchmark(drawLettersOnWebGl);
 }
 
 
