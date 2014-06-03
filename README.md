@@ -41,23 +41,28 @@ SVG rendering:
 
 Server rendering:
 
-Not tested, but assumed to produce the best quality font rendering. Mitigates the processing overhead on the client side in exchange for the network and server side overhead. Google Maps Lite uses this technique for horizontal labels to add shadow, glow and custom fonts.
-
-
-**Remarks:**
-
-TODO delete this section
-
-- chrome, terrible font rendering without shadow
-- shadow very slow in IE and firefox (fast in chrome and opera only)
-- WebGL best-looking but slow (unfeasible for 5k+ letters)
-- SVG very slow even on Chrome (stopping there)
-- SVG potential to customize using CSS
+- Not tested
 
 
 **Conclusion:**
 
-TODO
+With respect to the above results, we should stick with canvas font rendering initially.
+This method is the fastest across all browsers.
+The only problem persists in Chrome browsers where fonts are rendered pixelated.
+Fortunately adding shadows in Chrome does not impact rendering speed, unlike in IE and Firefox where shadows make rendering too slow and should not be used.
+Thus, we should active shadow blur for Chrome browsers only and disable for all others.
+
+SVG font rendering is very slow even on Chrome, thus it was not even tested on other browsers.
+However using this method allows us to use all the CSS techniques: shadows, glows, font decorations, etc. (see [examples](http://tutorials.jenkov.com/svg/text-element.html#styling-text)).
+Perhaps for a few horizontal labels (e.g. cities, states, etc.) this could be used to add the glow/shadow effects.
+
+WebGL font rendering produces the best quality, but is very slow and thus unfeasible. Additionally WebGL is not supported on some browsers.
+
+Server side rendering, although not tested, is assumed to produce the best quality font rendering.
+Google Maps Lite uses this technique for horizontal labels to add shadow, glow and custom fonts.
+Should canvas rendering be insufficient to produce high quality font rendering with all the effects (we are used to in flash), we should at one stage switch to this technique.
+Performance of drawing images for letters might be an issue and needs to be tested. (TODO!)
+
 
 **Browsers:**
 
@@ -66,3 +71,9 @@ TODO
 - Canary Chrome 37.0.2015.0
 - Chrome 35.0.1916.114
 - Opera 21.0
+
+
+**Remarks:**
+
+- Chrome has terrible canvas font rendering without shadow. Shadows somewhat smooth out the pixelation. IE does not have this issue.
+-
