@@ -157,7 +157,6 @@ var drawLettersOnCanvas = function drawFontsOnCanvas() {
     context.fillStyle = colorToRgba(settings.text.color);
 
     for (var r = 0; r < settings.text.rotations; r++) {
-        var x = settings.text.size + settings.text.padding;
         for (var c = 0; c < settings.text.value.length; c++) {
             var letter = settings.text.value.charAt(c);
 
@@ -181,7 +180,7 @@ function drawLetterOnWebGl(stage, letter, x, y, degrees) {
 
     text.position.x = x;
     text.position.y = y;
-    text.rotation = degrees * Math.PI / 180
+    text.rotation = degrees * Math.PI / 180;
 
     stage.addChild(text);
 }
@@ -192,7 +191,6 @@ var drawLettersOnWebGl = function drawLettersOnWebGl() {
     stage.interactive = false;
 
     for (var r = 0; r < settings.text.rotations; r++) {
-        var x = settings.text.size + settings.text.padding;
         for (var c = 0; c < settings.text.value.length; c++) {
             var letter = settings.text.value.charAt(c);
 
@@ -206,13 +204,66 @@ var drawLettersOnWebGl = function drawLettersOnWebGl() {
     rendererWebGl.render(stage);
 };
 
+function drawLetterUsingSvg(_context, letter, x, y, degrees, start, count) {
+
+    var z = settings.text.size / 2;
+    // More info on: https://developer.mozilla.org/en-US/docs/Web/HTML/Canvas/Drawing_DOM_objects_into_a_canvas
+    var data = '<svg xmlns="http://www.w3.org/2000/svg">' +
+        '<foreignObject width="100%" height="100%" transform="rotate(' + degrees + ' ' + z + ' ' + z + ')">' +
+        '<div xmlns="http://www.w3.org/1999/xhtml" style="font:' + settings.text.style + ' ' + settings.text.size + 'px ' + settings.text.font + ';color:' + colorToRgba(settings.text.color) + '">' +
+        letter +
+        '</div>' +
+        '</foreignObject>' +
+        '</svg>';
+
+    var DOMURL = window.URL || window.webkitURL || window;
+    var img = new Image();
+    var svg = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
+    var url = DOMURL.createObjectURL(svg);
+
+    img.onload = function () {
+
+        _context.drawImage(img, x, y);
+        DOMURL.revokeObjectURL(url);
+
+        if (count == (settings.text.rotations * settings.text.value.length)) {
+            var end = +new Date();  // log end timestamp
+            console.log("drawLettersUsingSvg: " + (end - start) + "ms");
+
+            document.getElementById("time").innerHTML = (end - start) + "ms";
+        }
+
+    };
+
+    img.src = url;
+}
+
+var drawLettersUsingSvg = function drawLettersUsingSvg() {
+
+    var start = +new Date();  // log start timestamp
+    var count = 0;
+
+    for (var r = 0; r < settings.text.rotations; r++) {
+        for (var c = 0; c < settings.text.value.length; c++) {
+            var letter = settings.text.value.charAt(c);
+
+            var y = (r + 1) * (settings.text.size + settings.text.padding);
+            var x = (c + 1) * (settings.text.size + settings.text.padding);
+
+            drawLetterUsingSvg(context, letter, x, y, r * 360.0 / settings.text.rotations, start, ++count);
+        }
+    }
+};
+
 function run() {
-    //clearCanvas();
-    //benchmark(drawLettersOnCanvas);
+    clearCanvas();
+    benchmark(drawLettersOnCanvas);
+
+    //clearWebGl();
+    //benchmark(drawLettersOnWebGl);
 
     //clearCanvas();
-    clearWebGl();
-    benchmark(drawLettersOnWebGl);
+    //drawLettersUsingSvg();
 }
 
 
