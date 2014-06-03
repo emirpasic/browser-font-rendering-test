@@ -50,7 +50,7 @@ With respect to the above results, we should stick with canvas font rendering in
 This method is the fastest across all browsers.
 The only problem persists in Chrome browsers where fonts are rendered pixelated.
 Fortunately adding shadows in Chrome does not impact rendering speed, unlike in IE and Firefox where shadows make rendering too slow and should not be used.
-Thus, we should active shadow blur for Chrome browsers only and disable for all others.
+Thus, we should active shadow blur for Chrome browsers only to smooth out pixelation and disable it for all other.
 
 SVG font rendering is very slow even on Chrome, thus it was not even tested on other browsers.
 However using this method allows us to use all the CSS techniques: shadows, glows, font decorations, etc. (see [examples](http://tutorials.jenkov.com/svg/text-element.html#styling-text)).
@@ -72,8 +72,3 @@ Performance of drawing images for letters might be an issue and needs to be test
 - Chrome 35.0.1916.114
 - Opera 21.0
 
-
-**Remarks:**
-
-- Chrome has terrible canvas font rendering without shadow. Shadows somewhat smooth out the pixelation. IE does not have this issue.
--
