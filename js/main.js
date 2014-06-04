@@ -266,7 +266,7 @@ function drawLetterAsImage(context, img, x, y, degrees) {
 
     context.translate(x, y);
     context.rotate(degrees * Math.PI / 180);
-    context.drawImage(img, -(settings.text.size / 2), -(settings.text.size / 2),settings.text.size,settings.text.size);
+    context.drawImage(img, -(settings.text.size / 2), -(settings.text.size / 2), settings.text.size, settings.text.size);
 
 
     context.restore();
@@ -292,23 +292,23 @@ var drawLettersAsImages = function drawLettersAsImages() {
 
 };
 
+
 function run() {
-    //clearCanvas();
-    //benchmark(drawLettersOnCanvas);
+    clearCanvas();
+    benchmark(drawLettersOnCanvas);
 
-    //clearWebGl();
-    //benchmark(drawLettersOnWebGl);
+    // clearWebGl();
+    // benchmark(drawLettersOnWebGl);
 
-    //clearCanvas();
-    //drawLettersUsingSvg();
+    // clearCanvas();
+    // drawLettersUsingSvg();
 
-    //clearCanvas();
-    img = new Image();
-
-    img.onload = function () { // make sure the image is loaded after the img.src assignment
-        benchmark(drawLettersAsImages);
-    };
-    img.src = 'img/letter.png';
+    // clearCanvas();
+    // img = new Image();
+    // img.onload = function () { // make sure the image is loaded after the img.src assignment
+    //     benchmark(drawLettersAsImages);
+    // };
+    // img.src = 'img/letter.png';
 
 }
 
