@@ -4,6 +4,7 @@ context = undefined;
 canvasWebGl = undefined;
 contextWebGl = undefined;
 rendererWebGl = undefined;
+img = undefined;
 
 settings = {
 
@@ -255,15 +256,60 @@ var drawLettersUsingSvg = function drawLettersUsingSvg() {
     }
 };
 
+function drawLetterAsImage(context, img, x, y, degrees) {
+
+    context.save();
+
+
+    var size = settings.text.size;
+
+
+    context.translate(x, y);
+    context.rotate(degrees * Math.PI / 180);
+    context.drawImage(img, -(settings.text.size / 2), -(settings.text.size / 2),settings.text.size,settings.text.size);
+
+
+    context.restore();
+
+};
+
+var drawLettersAsImages = function drawLettersAsImages() {
+
+    context.font = settings.text.style + ' ' + settings.text.size + 'px ' + settings.text.font;
+    context.fillStyle = colorToRgba(settings.text.color);
+
+    for (var r = 0; r < settings.text.rotations; r++) {
+        for (var c = 0; c < settings.text.value.length; c++) {
+            var letter = settings.text.value.charAt(c);
+
+            var y = (r + 1) * (settings.text.size + settings.text.padding);
+            var x = (c + 1) * (settings.text.size + settings.text.padding);
+            var degrees = r * 360.0 / settings.text.rotations;
+
+            drawLetterAsImage(context, img, x, y, degrees);
+        }
+    }
+
+};
+
 function run() {
-    clearCanvas();
-    benchmark(drawLettersOnCanvas);
+    //clearCanvas();
+    //benchmark(drawLettersOnCanvas);
 
     //clearWebGl();
     //benchmark(drawLettersOnWebGl);
 
     //clearCanvas();
     //drawLettersUsingSvg();
+
+    //clearCanvas();
+    img = new Image();
+
+    img.onload = function () { // make sure the image is loaded after the img.src assignment
+        benchmark(drawLettersAsImages);
+    };
+    img.src = 'img/letter.png';
+
 }
 
 

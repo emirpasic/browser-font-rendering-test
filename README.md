@@ -41,7 +41,9 @@ SVG rendering:
 
 Server rendering:
 
-- Not tested
+- Chrome: fast; quality good (not tested with shadows)
+- IE: fast; quality good (not tested with shadows)
+- Firefox: fast; quality good (not tested with shadows)
 
 
 **Conclusion:**
@@ -58,10 +60,10 @@ Perhaps for a few horizontal labels (e.g. cities, states, etc.) this could be us
 
 WebGL font rendering produces the best quality, but is very slow and thus unfeasible. Additionally WebGL is not supported on some browsers.
 
-Server side rendering, although not tested, is assumed to produce the best quality font rendering.
+Server side can produce the best quality font rendering depending on the server-side rendering engine.
+Drawing images on canvas is as fast as standard fillText function.
 Google Maps Lite uses this technique for horizontal labels to add shadow, glow and custom fonts.
-Should canvas rendering be insufficient to produce high quality font rendering with all the effects (we are used to in flash), we should at one stage switch to this technique.
-Performance of drawing images for letters might be an issue and needs to be tested. (TODO!)
+Should canvas rendering be insufficient to produce high quality font rendering with all the effects (as we were used to in flash), we should at one stage switch to this technique.
 
 
 **Browsers:**
