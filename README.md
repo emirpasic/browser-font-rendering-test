@@ -1,3 +1,5 @@
+**Obsoloted by Valve's http://www.valvesoftware.com/publications/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf and SDF fonts on WebGL.**
+
 HTML5/Canvas Font Rendering Test
 ================================
 
